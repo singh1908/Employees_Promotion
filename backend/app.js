@@ -31,7 +31,7 @@ const defaultWeights = {
 };
 
 // Function to calculate developer scores
-const calculateScore = (prioritizedMetrics) => {
+const calculateScore = (prioritizedMetrics, limit) => {
   const developers = readData();
   if (!developers.length) return [];
 
@@ -96,7 +96,7 @@ const calculateScore = (prioritizedMetrics) => {
   });
 
   // Sort and return top 20 developers
-  return scoredDevelopers.sort((a, b) => b.score - a.score).slice(0, 20);
+  return scoredDevelopers.sort((a, b) => b.score - a.score).slice(0, limit);
 };
 
 // API Route: Clients Specify Metrics to Prioritize
@@ -104,7 +104,8 @@ app.get("/top-developers", (req, res) => {
   const prioritizedMetrics = Object.keys(req.query).filter(
     (key) => defaultWeights[key]
   );
-  const topDevelopers = calculateScore(prioritizedMetrics);
+  const limit = parseInt(req.query.limit) || 20;
+  const topDevelopers = calculateScore(prioritizedMetrics, limit);
   res.json(topDevelopers);
 });
 

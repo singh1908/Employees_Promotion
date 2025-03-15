@@ -4,12 +4,16 @@ import "./EmployeeTable.css"; // Import CSS file
 const EmployeeTable = () => {
   const [data, setData] = useState([]);
   const [sortedData, setSortedData] = useState([]);
-  const [url, setUrl] = useState("http://localhost:3000/top-developers");
+  const [baseUrl, setBaseUrl] = useState("http://localhost:3000/top-developers?");
+  const [employeeLimit, setEmployeeLimit] = useState(20); // Default limit
   const [visibleColumns, setVisibleColumns] = useState([
-    "employeeID", "employeeName", "developmentFrequency", "leadTime", 
-    "cycleTime", "leadTimeChanges", "velocity", "workInProgress", 
+    "employeeID", "employeeName", "developmentFrequency", "leadTime",
+    "cycleTime", "leadTimeChanges", "velocity", "workInProgress",
     "failureRate", "restoreTime", "csat", "peerRating", "score"
   ]); // Default: Show all columns
+
+  // Generate final API URL including the limit
+  const url = `${baseUrl}limit=${employeeLimit}`;
 
   useEffect(() => {
     fetch(url)
@@ -19,28 +23,28 @@ const EmployeeTable = () => {
         setSortedData(jsonData);
       })
       .catch((error) => console.error("Error loading data:", error));
-  }, [url]);
+  }, [url]); // Trigger fetch when URL changes
 
   const handleDropdown = (e) => {
-    const selectedUrl = e.target.value;
-    setUrl(selectedUrl);
+    const selectedUrl = e.target.value.split("&limit")[0]; // Remove any existing limit
+    setBaseUrl(selectedUrl);
 
     // Set columns based on selection
     switch (selectedUrl) {
-      case "http://localhost:3000/top-developers":
-        setVisibleColumns(["employeeID", "employeeName","developmentFrequency","leadTime", "cycleTime", "leadTimeChanges",  "velocity", "workInProgress", "failureRate", "restoreTime", "csat", "peerRating", "score"]);
+      case "http://localhost:3000/top-developers?":
+        setVisibleColumns(["employeeID", "employeeName", "developmentFrequency", "leadTime", "cycleTime", "leadTimeChanges", "velocity", "workInProgress", "failureRate", "restoreTime", "csat", "peerRating", "score"]);
         break;
-      case "http://localhost:3000/top-developers?velocity&csat":
-        setVisibleColumns(["employeeID", "employeeName", "velocity", "csat" , "score"]);
+      case "http://localhost:3000/top-developers?velocity&csat&":
+        setVisibleColumns(["employeeID", "employeeName", "velocity", "csat", "score"]);
         break;
-      case "http://localhost:3000/top-developers?failureRate&restoreTime":
+      case "http://localhost:3000/top-developers?failureRate&restoreTime&":
         setVisibleColumns(["employeeID", "employeeName", "failureRate", "restoreTime", "score"]);
         break;
-      case "http://localhost:3000/top-developers?leadTime&velocity&peerRating":
+      case "http://localhost:3000/top-developers?leadTime&velocity&peerRating&":
         setVisibleColumns(["employeeID", "employeeName", "leadTime", "velocity", "peerRating", "score"]);
         break;
       default:
-        setVisibleColumns(["employeeID", "employeeName","developmentFrequency","leadTime", "cycleTime", "leadTimeChanges",  "velocity", "workInProgress", "failureRate", "restoreTime", "csat", "peerRating", "score"]);
+        setVisibleColumns(["employeeID", "employeeName", "developmentFrequency", "leadTime", "cycleTime", "leadTimeChanges", "velocity", "workInProgress", "failureRate", "restoreTime", "csat", "peerRating", "score"]);
     }
   };
 
@@ -52,11 +56,20 @@ const EmployeeTable = () => {
       <div className="dropdown-container">
         <label htmlFor="sort">Sort By:</label>
         <select id="sort" onChange={handleDropdown}>
-          <option value="http://localhost:3000/top-developers">No Prioritization</option>
-          <option value="http://localhost:3000/top-developers?velocity&csat">Customer Satisfaction</option>
-          <option value="http://localhost:3000/top-developers?failureRate&restoreTime">Focus on Stability</option>
-          <option value="http://localhost:3000/top-developers?leadTime&velocity&peerRating">Focus on Speed and Teamwork</option>
+          <option value="http://localhost:3000/top-developers?">No Prioritization</option>
+          <option value="http://localhost:3000/top-developers?velocity&csat&">Customer Satisfaction</option>
+          <option value="http://localhost:3000/top-developers?failureRate&restoreTime&">Focus on Stability</option>
+          <option value="http://localhost:3000/top-developers?leadTime&velocity&peerRating&">Focus on Speed and Teamwork</option>
         </select>
+
+        {/* Employee Limit Input */}
+        <label>Number of Employees:</label>
+        <input
+          type="number"
+          value={employeeLimit}
+          onChange={(e) => setEmployeeLimit(e.target.value)}
+          min="1"
+        />
       </div>
 
       <table className="employee-table">
