@@ -69,6 +69,7 @@ const EmployeeTable = () => {
           value={employeeLimit}
           onChange={(e) => setEmployeeLimit(e.target.value)}
           min="1"
+          max="100"
         />
       </div>
 
